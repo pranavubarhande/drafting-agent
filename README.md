@@ -5,8 +5,9 @@ draft against the real ledger records, and lands on exactly one of revise, absta
 Every human decision on a draft is captured as structured signal, and a retrieval-memory mechanism
 uses that signal to guide future drafts automatically.
 
-Current status: Part 1 (self-checking agent) and Part 2 (learning loop) are built and tested.
-Part 3 (the eval harness) is not implemented yet.
+Current status: Part 1 (self-checking agent), Part 2 (learning loop), and Part 3 (eval harness)
+are all built and tested. One caveat on Part 3 is disclosed prominently below: the calibration
+hand-labels are a first pass done in the candidate's place, not yet the candidate's own labels.
 
 ## Setup
 
@@ -29,10 +30,14 @@ pytest                        # full test suite, stub mode, no model or network 
 maxed-agent generate          # one generate -> verify -> decide cycle against the fixture ledger
 maxed-agent injected-errors   # Part 1 proof: corrupts drafts on purpose, reports caught vs missed
 maxed-agent learning-cycle    # Part 2 proof: batch (no memory) -> decide -> ingest -> batch (with memory)
+maxed-agent calibration       # Part 3 proof: judge vs data/eval/human_labels.json, agreement numbers
+maxed-agent length-bias       # Part 3 proof: naive rubric vs anchored rubric on the same padded pair
+maxed-agent before-after      # Part 3 proof: judge-scores learning-cycle's batch 1 vs batch 2
 ```
 
-All three commands take `--client-id`, defaulting to `CLIENT-001` (`CLIENT-002` is the second
-fixture client).
+All commands take `--client-id`, defaulting to `CLIENT-001` (`CLIENT-002` is the second fixture
+client). `calibration`, `length-bias`, and `before-after` need a real model (`ollama` or `gemini`
+in `.env`); they are not meaningful in stub mode since stub responses do not vary with the prompt.
 
 ## What was built
 
@@ -65,6 +70,44 @@ that no transaction id from client 1's ledger ever appears in client 2's injecte
 `learning-cycle` runs a batch with no memory, logs decisions, builds memory from the qualifying
 approved examples, then runs a second batch with that memory injected as few-shot guidance, and
 reports both batches' outcomes side by side.
+
+**Part 3, the eval harness.** `judge.py` scores a draft on four dimensions. Two of them,
+factual_grounding and absence_of_invented_numbers, are computed entirely in code from the same
+verifier critique used in Part 1, never asked to the model, to keep "numbers by code, not by
+model" true for the judge as well as the verifier. The other two, completeness and tone, go to the
+model, with the verified facts (issue count, citation coverage) fed in as trusted context rather
+than left for the model to re-derive. `calibration.py` scores a 12-draft set spanning quality tiers
+(clean, each of the four Part 1 injected-error types, sparse and partial-coverage drafts, a
+padded-filler draft, a leaked-internal-text draft, an accurate-but-unprofessional draft, and a
+compound two-issue draft) against hand labels, reporting Spearman correlation and near-agreement
+per dimension. `length_bias.py` is the defended judge failure mode: it compares a naive, vaguely
+worded completeness prompt against the anchored one actually used in `judge.py`, on the same
+sparse-draft-plus-thoroughness-padding pair, live against gemma2:2b. Across two live runs, the
+naive prompt consistently inflated both completeness and tone purely from padding with zero new
+checkable facts (by 2 and 1 points on one run, by 1 and 1 on a second); the anchored prompt
+consistently showed less bias, and on one of the two runs showed none at all on completeness. The
+anchored prompt has not yet shown zero bias on tone specifically across both runs, which is noted
+honestly rather than rounded up. `before_after.py` judge-scores the actual
+batch 1 and batch 2 drafts from a real `learning-cycle` run and reports whether the average moved,
+honestly, in either direction. One live run (batch size 3) moved from 4.25 to 4.58 overall, driven
+entirely by completeness and tone; factual_grounding and absence_of_invented_numbers stayed at a
+perfect 5.00 in both batches, so the movement is not coming at the cost of accuracy. Verified this
+was a real result and not a measurement artifact: one batch 2 draft showed what first looked like
+double the expected transaction citations, checked directly, and it was citing every one of the 28
+transactions correctly, just labeling each one twice per line (once as a bullet label, once in the
+required parenthetical format). Run-to-run variance applies here too; see the blind spots section.
+
+## Important disclosure: who labeled the calibration set
+
+The brief's calibration step is specifically about measuring the judge against a real human's
+independent judgment. The 12 drafts in `data/eval/human_labels.json` were labeled by the AI
+assistant working on this build, as a first pass, due to time constraints, not by the candidate.
+Each label was reasoned through independently against the same four-dimension rubric the judge
+uses, not reverse-engineered from what the code or model would say, so the resulting agreement
+numbers are real and not circular. But they should be read as measuring the judge against a
+careful rubric-following pass, not yet against the candidate's own judgment. The candidate can
+replace the `human_scores` in that file with their own 1 to 5 ratings at any point; `calibration.py`
+and `maxed-agent calibration` already read whatever is in that file with no code changes needed.
 
 ## Consumption mechanism: retrieval memory, and why
 
@@ -105,24 +148,32 @@ real system like Maxed's: no retraining infrastructure, fast to iterate, easy to
   there is nothing to be similar to yet beyond recency; a real system with multiple artifact types
   per client would need actual similarity scoring, and that is noted here rather than built for a
   scope that does not exist yet.
-- Part 3 (the judge, calibration against a hand-labeled set, a defended judge failure mode, the
-  before/after score comparison) has not been started.
 - Fine-tuning or DPO on the captured decisions was not attempted; the brief lists this as stretch,
   never the bar.
+- A second defended judge failure mode (sycophancy, self-preference, position bias) was not
+  attempted; the brief lists a second one as stretch. Length bias (see above) is the one built and
+  demonstrated.
+- Calibrating abstain versus escalate, and a go/no-go gating rule for shipping a model change, are
+  both brief-listed stretch items and were not attempted.
 
 ## Blind spots
 
 - The verifier only catches claims that resolve to a dollar amount. A qualitative fabricated claim
   with no number attached (for example, a made-up statement about an account flag or a policy) would
   not be caught by anything in Part 1. This is a real gap, not a hypothetical one.
-- The verifier checks grounding, not completeness or tone. A draft can cite every transaction
-  correctly and still be a bad client message in other ways; that is explicitly left for Part 3's
-  judge, but until Part 3 exists there is no check for it at all. Two real bugs during this build
-  came from exactly this gap: a model that produced a nearly content-free but technically "grounded"
-  draft, and a model that leaked internal revision feedback into a factually correct draft. Both
-  are now caught by targeted checks (a minimum-citation floor and a leaked-text marker), but the
-  general category, anything wrong with a draft that not is a false factual claim, is not
-  exhaustively covered.
+- The verifier checks grounding, not completeness or tone; that is explicitly left for Part 3's
+  judge. Two real bugs during this build came from exactly this gap before Part 3 existed: a model
+  that produced a nearly content-free but technically "grounded" draft, and a model that leaked
+  internal revision feedback into a factually correct draft. Both are now also caught by targeted
+  checks in the verifier itself (a minimum-citation floor and a leaked-text marker), but the general
+  category, anything wrong with a draft that is not a false factual claim, is not exhaustively
+  covered by either the verifier or the judge's four fixed dimensions.
+- The calibration and before/after numbers move noticeably between runs of the same command against
+  the same drafts, because the model-scored dimensions (completeness, tone) depend on live sampling.
+  One calibration run measured completeness correlation at 0.76, a second measured 0.58, same 12
+  drafts, same labels. Both are positive and moderate to strong, but the number should not be read
+  to two decimal places on a 12-draft set. See the calibration disclosure above for who labeled the
+  set.
 - The learning-cycle proof so far uses a batch size of 3 per side, run live against gemma2:2b for
   speed. That is enough to demonstrate the mechanism runs correctly end to end and does not corrupt
   itself on bad examples, but it is too small a sample to support a strong quantitative claim either
