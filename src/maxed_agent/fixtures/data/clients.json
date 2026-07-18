@@ -1,0 +1,12 @@
+[
+  {
+    "id": "CLIENT-001",
+    "name": "Brightleaf Home Goods",
+    "email": "accounts@brightleafhomegoods.example"
+  },
+  {
+    "id": "CLIENT-002",
+    "name": "Marlow and Finch Design Studio",
+    "email": "billing@marlowfinchdesign.example"
+  }
+]

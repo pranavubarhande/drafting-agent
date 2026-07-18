@@ -1,0 +1,348 @@
+[
+  {
+    "client_id": "CLIENT-001",
+    "transactions": [
+      {
+        "id": "TXN-001",
+        "date": "2026-01-05",
+        "type": "invoice",
+        "description": "January service fee",
+        "amount": 450.0
+      },
+      {
+        "id": "TXN-002",
+        "date": "2026-01-20",
+        "type": "payment",
+        "description": "Payment received, check #1042",
+        "amount": -450.0
+      },
+      {
+        "id": "TXN-003",
+        "date": "2026-02-05",
+        "type": "invoice",
+        "description": "February service fee",
+        "amount": 450.0
+      },
+      {
+        "id": "TXN-004",
+        "date": "2026-02-18",
+        "type": "payment",
+        "description": "Partial payment, ACH",
+        "amount": -300.0
+      },
+      {
+        "id": "TXN-005",
+        "date": "2026-02-25",
+        "type": "adjustment",
+        "description": "Late fee assessed",
+        "amount": 25.0
+      },
+      {
+        "id": "TXN-006",
+        "date": "2026-03-01",
+        "type": "invoice",
+        "description": "March service fee",
+        "amount": 450.0
+      },
+      {
+        "id": "TXN-007",
+        "date": "2026-03-10",
+        "type": "credit",
+        "description": "Billing correction credit",
+        "amount": -50.0
+      },
+      {
+        "id": "TXN-008",
+        "date": "2026-03-15",
+        "type": "payment",
+        "description": "Payment received, card",
+        "amount": -400.0
+      },
+      {
+        "id": "TXN-009",
+        "date": "2026-03-22",
+        "type": "invoice",
+        "description": "Supplemental consulting hours",
+        "amount": 320.0
+      },
+      {
+        "id": "TXN-010",
+        "date": "2026-04-01",
+        "type": "invoice",
+        "description": "April service fee",
+        "amount": 450.0
+      },
+      {
+        "id": "TXN-011",
+        "date": "2026-04-01",
+        "type": "invoice",
+        "description": "Software license renewal",
+        "amount": 325.0
+      },
+      {
+        "id": "TXN-012",
+        "date": "2026-04-14",
+        "type": "payment",
+        "description": "Payment received, check #1077",
+        "amount": -450.0
+      },
+      {
+        "id": "TXN-013",
+        "date": "2026-04-20",
+        "type": "credit",
+        "description": "Refund, returned equipment",
+        "amount": -180.0
+      },
+      {
+        "id": "TXN-014",
+        "date": "2026-05-01",
+        "type": "invoice",
+        "description": "May service fee",
+        "amount": 450.0
+      },
+      {
+        "id": "TXN-015",
+        "date": "2026-05-01",
+        "type": "invoice",
+        "description": "May service fee, satellite office",
+        "amount": 450.0
+      },
+      {
+        "id": "TXN-016",
+        "date": "2026-05-12",
+        "type": "payment",
+        "description": "Payment received, ACH",
+        "amount": -450.0
+      },
+      {
+        "id": "TXN-017",
+        "date": "2026-05-12",
+        "type": "payment",
+        "description": "Payment received, ACH, satellite office",
+        "amount": -450.0
+      },
+      {
+        "id": "TXN-018",
+        "date": "2026-05-28",
+        "type": "adjustment",
+        "description": "Rush processing fee",
+        "amount": 60.0
+      },
+      {
+        "id": "TXN-019",
+        "date": "2026-06-01",
+        "type": "invoice",
+        "description": "June service fee",
+        "amount": 450.0
+      },
+      {
+        "id": "TXN-020",
+        "date": "2026-06-01",
+        "type": "invoice",
+        "description": "June service fee, satellite office",
+        "amount": 450.0
+      },
+      {
+        "id": "TXN-021",
+        "date": "2026-06-10",
+        "type": "payment",
+        "description": "Payment received, check #1103",
+        "amount": -450.0
+      },
+      {
+        "id": "TXN-022",
+        "date": "2026-06-15",
+        "type": "credit",
+        "description": "Loyalty discount applied",
+        "amount": -40.0
+      },
+      {
+        "id": "TXN-023",
+        "date": "2026-06-18",
+        "type": "invoice",
+        "description": "Onboarding fee, new integration",
+        "amount": 275.0
+      },
+      {
+        "id": "TXN-024",
+        "date": "2026-06-20",
+        "type": "payment",
+        "description": "Partial payment, ACH",
+        "amount": -200.0
+      },
+      {
+        "id": "TXN-025",
+        "date": "2026-06-25",
+        "type": "adjustment",
+        "description": "Late fee assessed",
+        "amount": 25.0
+      },
+      {
+        "id": "TXN-026",
+        "date": "2026-06-27",
+        "type": "invoice",
+        "description": "July service fee, prepay",
+        "amount": 450.0
+      },
+      {
+        "id": "TXN-027",
+        "date": "2026-06-28",
+        "type": "credit",
+        "description": "Prepayment discount",
+        "amount": -22.5
+      },
+      {
+        "id": "TXN-028",
+        "date": "2026-06-30",
+        "type": "payment",
+        "description": "Payment received, card",
+        "amount": -300.0
+      }
+    ]
+  },
+  {
+    "client_id": "CLIENT-002",
+    "transactions": [
+      {
+        "id": "TXN-029",
+        "date": "2026-02-01",
+        "type": "invoice",
+        "description": "February design retainer",
+        "amount": 600.0
+      },
+      {
+        "id": "TXN-030",
+        "date": "2026-02-15",
+        "type": "payment",
+        "description": "Payment received, wire transfer",
+        "amount": -600.0
+      },
+      {
+        "id": "TXN-031",
+        "date": "2026-03-01",
+        "type": "invoice",
+        "description": "March design retainer",
+        "amount": 600.0
+      },
+      {
+        "id": "TXN-032",
+        "date": "2026-03-12",
+        "type": "payment",
+        "description": "Partial payment, check #221",
+        "amount": -400.0
+      },
+      {
+        "id": "TXN-033",
+        "date": "2026-03-20",
+        "type": "adjustment",
+        "description": "Rush revision fee",
+        "amount": 85.0
+      },
+      {
+        "id": "TXN-034",
+        "date": "2026-04-01",
+        "type": "invoice",
+        "description": "April design retainer",
+        "amount": 600.0
+      },
+      {
+        "id": "TXN-035",
+        "date": "2026-04-05",
+        "type": "credit",
+        "description": "Discount, referral program",
+        "amount": -60.0
+      },
+      {
+        "id": "TXN-036",
+        "date": "2026-04-18",
+        "type": "payment",
+        "description": "Payment received, wire transfer",
+        "amount": -600.0
+      },
+      {
+        "id": "TXN-037",
+        "date": "2026-04-22",
+        "type": "invoice",
+        "description": "Additional asset delivery",
+        "amount": 210.0
+      },
+      {
+        "id": "TXN-038",
+        "date": "2026-05-01",
+        "type": "invoice",
+        "description": "May design retainer",
+        "amount": 600.0
+      },
+      {
+        "id": "TXN-039",
+        "date": "2026-05-10",
+        "type": "payment",
+        "description": "Payment received, check #235",
+        "amount": -500.0
+      },
+      {
+        "id": "TXN-040",
+        "date": "2026-05-20",
+        "type": "adjustment",
+        "description": "Late fee assessed",
+        "amount": 30.0
+      },
+      {
+        "id": "TXN-041",
+        "date": "2026-06-01",
+        "type": "invoice",
+        "description": "June design retainer",
+        "amount": 600.0
+      },
+      {
+        "id": "TXN-042",
+        "date": "2026-06-01",
+        "type": "invoice",
+        "description": "June design retainer, secondary brand",
+        "amount": 600.0
+      },
+      {
+        "id": "TXN-043",
+        "date": "2026-06-14",
+        "type": "payment",
+        "description": "Payment received, wire transfer",
+        "amount": -600.0
+      },
+      {
+        "id": "TXN-044",
+        "date": "2026-06-14",
+        "type": "payment",
+        "description": "Payment received, wire transfer, secondary brand",
+        "amount": -600.0
+      },
+      {
+        "id": "TXN-045",
+        "date": "2026-06-20",
+        "type": "credit",
+        "description": "Billing correction credit",
+        "amount": -45.0
+      },
+      {
+        "id": "TXN-046",
+        "date": "2026-06-25",
+        "type": "invoice",
+        "description": "Brand refresh package",
+        "amount": 950.0
+      },
+      {
+        "id": "TXN-047",
+        "date": "2026-06-28",
+        "type": "payment",
+        "description": "Partial payment, ACH",
+        "amount": -700.0
+      },
+      {
+        "id": "TXN-048",
+        "date": "2026-06-30",
+        "type": "credit",
+        "description": "Loyalty discount applied",
+        "amount": -35.0
+      }
+    ]
+  }
+]
