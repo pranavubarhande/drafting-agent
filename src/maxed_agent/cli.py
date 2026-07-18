@@ -6,6 +6,9 @@ from rich.table import Table
 from maxed_agent.agent.injected_errors import build_injected_error_cases
 from maxed_agent.agent.loop import run_loop
 from maxed_agent.agent.verifier import critique_draft
+from maxed_agent.eval.before_after import score_before_after
+from maxed_agent.eval.calibration import build_labeling_candidates, compute_agreement, load_human_labels
+from maxed_agent.eval.length_bias import measure_anchored, measure_naive
 from maxed_agent.fixtures.generate_fixtures import DEFAULT_CLIENT_ID, load_fixtures
 from maxed_agent.learning.learning_cycle import _batch_stats, run_learning_cycle
 from maxed_agent.model_client import ModelClient
@@ -83,6 +86,87 @@ def learning_cycle(batch_size: int = 3, client_id: str = DEFAULT_CLIENT_ID) -> N
     console.print()
     console.print("[bold]Retrieval memory injected into batch 2:[/bold]")
     console.print(report.memory_block if report.memory_block else "(none, batch 1 produced no approved examples)")
+
+
+@app.command()
+def calibration(client_id: str = DEFAULT_CLIENT_ID) -> None:
+    _, ledger = load_fixtures(client_id)
+    candidates = build_labeling_candidates(ledger)
+    human_labels = load_human_labels()
+
+    if not human_labels:
+        console.print("No human labels found at data/eval/human_labels.json. Nothing to calibrate against.")
+        raise typer.Exit(code=1)
+
+    model_client = ModelClient()
+    result = compute_agreement(candidates, human_labels, ledger, model_client)
+
+    table = Table(title=f"Judge calibration against {len(human_labels)} hand-labeled drafts")
+    table.add_column("Dimension")
+    table.add_column("Spearman")
+    table.add_column("Exact agreement")
+    table.add_column("Within 1 point")
+    for dim, stats in result.items():
+        spearman = f"{stats['spearman']:.2f}" if stats["spearman"] is not None else "n/a (no variance)"
+        table.add_row(dim, spearman, f"{stats['exact_agreement']:.0%}", f"{stats['near_agreement']:.0%}")
+
+    console.print(table)
+
+
+@app.command(name="length-bias")
+def length_bias(client_id: str = DEFAULT_CLIENT_ID) -> None:
+    _, ledger = load_fixtures(client_id)
+    txn = ledger.transactions[1]
+    sparse_draft = f"A payment of ${abs(txn.amount):.2f} ({txn.id}) was received.\nTotal balance due: ${ledger.balance:.2f}"
+
+    model_client = ModelClient()
+    naive_result = measure_naive(sparse_draft, ledger, model_client)
+    anchored_result = measure_anchored(sparse_draft, ledger, model_client)
+
+    table = Table(title="Length bias: naive rubric vs anchored rubric, same sparse-plus-padding pair")
+    table.add_column("Prompt")
+    table.add_column("Sparse completeness/tone")
+    table.add_column("Padded completeness/tone")
+    table.add_column("Completeness gap")
+    table.add_column("Tone gap")
+    table.add_row(
+        "naive (vague)",
+        f"{naive_result.sparse.completeness}/{naive_result.sparse.tone}",
+        f"{naive_result.padded.completeness}/{naive_result.padded.tone}",
+        str(naive_result.completeness_gap),
+        str(naive_result.tone_gap),
+    )
+    table.add_row(
+        "anchored (mine)",
+        f"{anchored_result.sparse.completeness}/{anchored_result.sparse.tone}",
+        f"{anchored_result.padded.completeness}/{anchored_result.padded.tone}",
+        str(anchored_result.completeness_gap),
+        str(anchored_result.tone_gap),
+    )
+
+    console.print(table)
+
+
+@app.command(name="before-after")
+def before_after(batch_size: int = 3, client_id: str = DEFAULT_CLIENT_ID) -> None:
+    _, ledger = load_fixtures(client_id)
+    model_client = ModelClient()
+    report = run_learning_cycle(model_client, batch_size=batch_size, client_id=client_id)
+    result = score_before_after(report, ledger, model_client)
+
+    table = Table(title="Before (no memory) vs after (with retrieval memory), judge-scored")
+    table.add_column("")
+    table.add_column("Before")
+    table.add_column("After")
+    for dim in ("factual_grounding", "absence_of_invented_numbers", "completeness", "tone"):
+        before_avg = sum(getattr(s, dim) for s in result.before_scores) / len(result.before_scores)
+        after_avg = sum(getattr(s, dim) for s in result.after_scores) / len(result.after_scores)
+        table.add_row(dim, f"{before_avg:.2f}", f"{after_avg:.2f}")
+    table.add_row("overall average", f"{result.before_average:.2f}", f"{result.after_average:.2f}")
+
+    console.print(table)
+    console.print()
+    console.print(f"[bold]Moved:[/bold] {'yes' if result.moved else 'no'}")
 
 
 if __name__ == "__main__":
