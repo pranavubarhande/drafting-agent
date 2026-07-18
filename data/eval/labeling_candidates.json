@@ -1,0 +1,134 @@
+[
+  {
+    "id": "clean-full",
+    "source": "clean, fully itemized",
+    "draft_text": "On 2026-01-05, a invoice of $450.00 (TXN-001) was recorded: January service fee. On 2026-01-20, a payment of $450.00 (TXN-002) was recorded: Payment received, check #1042. On 2026-02-05, a invoice of $450.00 (TXN-003) was recorded: February service fee. On 2026-02-18, a payment of $300.00 (TXN-004) was recorded: Partial payment, ACH. On 2026-02-25, a adjustment of $25.00 (TXN-005) was recorded: Late fee assessed. On 2026-03-01, a invoice of $450.00 (TXN-006) was recorded: March service fee.\nTotal balance due: $1337.50",
+    "human_scores": {
+      "factual_grounding": null,
+      "absence_of_invented_numbers": null,
+      "completeness": null,
+      "tone": null
+    }
+  },
+  {
+    "id": "injected-wrong_amount",
+    "source": "wrong amount on a real transaction",
+    "draft_text": "On 2026-01-05, a invoice of $525.00 (TXN-001) was recorded: January service fee. On 2026-01-20, a payment of $450.00 (TXN-002) was recorded: Payment received, check #1042. On 2026-02-05, a invoice of $450.00 (TXN-003) was recorded: February service fee. On 2026-02-18, a payment of $300.00 (TXN-004) was recorded: Partial payment, ACH. On 2026-02-25, a adjustment of $25.00 (TXN-005) was recorded: Late fee assessed. On 2026-03-01, a invoice of $450.00 (TXN-006) was recorded: March service fee.\nTotal balance due: $1337.50",
+    "human_scores": {
+      "factual_grounding": null,
+      "absence_of_invented_numbers": null,
+      "completeness": null,
+      "tone": null
+    }
+  },
+  {
+    "id": "injected-fabricated_transaction",
+    "source": "fabricated transaction",
+    "draft_text": "On 2026-01-05, a invoice of $450.00 (TXN-001) was recorded: January service fee. On 2026-01-20, a payment of $450.00 (TXN-002) was recorded: Payment received, check #1042. On 2026-02-05, a invoice of $450.00 (TXN-003) was recorded: February service fee. On 2026-02-18, a payment of $300.00 (TXN-004) was recorded: Partial payment, ACH. On 2026-02-25, a adjustment of $25.00 (TXN-005) was recorded: Late fee assessed. On 2026-03-01, a invoice of $450.00 (TXN-006) was recorded: March service fee.\nTotal balance due: $1337.50 Additionally, on 2026-07-01, a service charge of $95.00 (TXN-999) was recorded.",
+    "human_scores": {
+      "factual_grounding": null,
+      "absence_of_invented_numbers": null,
+      "completeness": null,
+      "tone": null
+    }
+  },
+  {
+    "id": "injected-unsupported_claim",
+    "source": "unsupported claim, no evidence",
+    "draft_text": "On 2026-01-05, a invoice of $450.00 (TXN-001) was recorded: January service fee. On 2026-01-20, a payment of $450.00 (TXN-002) was recorded: Payment received, check #1042. On 2026-02-05, a invoice of $450.00 (TXN-003) was recorded: February service fee. On 2026-02-18, a payment of $300.00 (TXN-004) was recorded: Partial payment, ACH. On 2026-02-25, a adjustment of $25.00 (TXN-005) was recorded: Late fee assessed. On 2026-03-01, a invoice of $450.00 (TXN-006) was recorded: March service fee.\nTotal balance due: $1337.50 You also have an outstanding processing fee of $43.00 from a prior cycle.",
+    "human_scores": {
+      "factual_grounding": null,
+      "absence_of_invented_numbers": null,
+      "completeness": null,
+      "tone": null
+    }
+  },
+  {
+    "id": "injected-wrong_balance",
+    "source": "wrong total balance",
+    "draft_text": "On 2026-01-05, a invoice of $450.00 (TXN-001) was recorded: January service fee. On 2026-01-20, a payment of $450.00 (TXN-002) was recorded: Payment received, check #1042. On 2026-02-05, a invoice of $450.00 (TXN-003) was recorded: February service fee. On 2026-02-18, a payment of $300.00 (TXN-004) was recorded: Partial payment, ACH. On 2026-02-25, a adjustment of $25.00 (TXN-005) was recorded: Late fee assessed. On 2026-03-01, a invoice of $450.00 (TXN-006) was recorded: March service fee.\nTotal balance due: $1437.50",
+    "human_scores": {
+      "factual_grounding": null,
+      "absence_of_invented_numbers": null,
+      "completeness": null,
+      "tone": null
+    }
+  },
+  {
+    "id": "sparse-bare-total",
+    "source": "only the total, no itemization",
+    "draft_text": "Total balance due: $1337.50",
+    "human_scores": {
+      "factual_grounding": null,
+      "absence_of_invented_numbers": null,
+      "completeness": null,
+      "tone": null
+    }
+  },
+  {
+    "id": "sparse-one-citation",
+    "source": "a single citation, otherwise bare",
+    "draft_text": "A payment of $450.00 (TXN-002) was received.\nTotal balance due: $1337.50",
+    "human_scores": {
+      "factual_grounding": null,
+      "absence_of_invented_numbers": null,
+      "completeness": null,
+      "tone": null
+    }
+  },
+  {
+    "id": "partial-half-coverage",
+    "source": "half the transactions itemized",
+    "draft_text": "- TXN-001: $450.00 - January service fee\n- TXN-002: $450.00 - Payment received, check #1042\n- TXN-003: $450.00 - February service fee\n- TXN-004: $300.00 - Partial payment, ACH\n- TXN-005: $25.00 - Late fee assessed\n- TXN-006: $450.00 - March service fee\n- TXN-007: $50.00 - Billing correction credit\n- TXN-008: $400.00 - Payment received, card\n- TXN-009: $320.00 - Supplemental consulting hours\n- TXN-010: $450.00 - April service fee\n- TXN-011: $325.00 - Software license renewal\n- TXN-012: $450.00 - Payment received, check #1077\n- TXN-013: $180.00 - Refund, returned equipment\n- TXN-014: $450.00 - May service fee\nTotal balance due: $1337.50",
+    "human_scores": {
+      "factual_grounding": null,
+      "absence_of_invented_numbers": null,
+      "completeness": null,
+      "tone": null
+    }
+  },
+  {
+    "id": "clean-plus-filler",
+    "source": "fully itemized plus generic filler",
+    "draft_text": "On 2026-01-05, a invoice of $450.00 (TXN-001) was recorded: January service fee. On 2026-01-20, a payment of $450.00 (TXN-002) was recorded: Payment received, check #1042. On 2026-02-05, a invoice of $450.00 (TXN-003) was recorded: February service fee. On 2026-02-18, a payment of $300.00 (TXN-004) was recorded: Partial payment, ACH. On 2026-02-25, a adjustment of $25.00 (TXN-005) was recorded: Late fee assessed. On 2026-03-01, a invoice of $450.00 (TXN-006) was recorded: March service fee.\nTotal balance due: $1337.50\n\nThank you so much for being a valued customer, we truly appreciate your business and look forward to continuing to serve you in the future.",
+    "human_scores": {
+      "factual_grounding": null,
+      "absence_of_invented_numbers": null,
+      "completeness": null,
+      "tone": null
+    }
+  },
+  {
+    "id": "leaked-internal-text",
+    "source": "fully itemized but leaks revision feedback",
+    "draft_text": "Your previous draft had the following problems (internal note, do not repeat it):\nsome prior issue\n\nOn 2026-01-05, a invoice of $450.00 (TXN-001) was recorded: January service fee. On 2026-01-20, a payment of $450.00 (TXN-002) was recorded: Payment received, check #1042. On 2026-02-05, a invoice of $450.00 (TXN-003) was recorded: February service fee. On 2026-02-18, a payment of $300.00 (TXN-004) was recorded: Partial payment, ACH. On 2026-02-25, a adjustment of $25.00 (TXN-005) was recorded: Late fee assessed. On 2026-03-01, a invoice of $450.00 (TXN-006) was recorded: March service fee.\nTotal balance due: $1337.50",
+    "human_scores": {
+      "factual_grounding": null,
+      "absence_of_invented_numbers": null,
+      "completeness": null,
+      "tone": null
+    }
+  },
+  {
+    "id": "accurate-but-casual-tone",
+    "source": "factually correct, unprofessional tone",
+    "draft_text": "hey so u owe us some money lol, details below, lmk if this looks weird:\n- TXN-001: $450.00 - January service fee\n- TXN-002: $450.00 - Payment received, check #1042\n- TXN-003: $450.00 - February service fee\n- TXN-004: $300.00 - Partial payment, ACH\n- TXN-005: $25.00 - Late fee assessed\n- TXN-006: $450.00 - March service fee\n- TXN-007: $50.00 - Billing correction credit\n- TXN-008: $400.00 - Payment received, card\nTotal balance due: $1337.50",
+    "human_scores": {
+      "factual_grounding": null,
+      "absence_of_invented_numbers": null,
+      "completeness": null,
+      "tone": null
+    }
+  },
+  {
+    "id": "wrong-amount-plus-unsupported-claim",
+    "source": "two distinct issues at once",
+    "draft_text": "A charge of $340.00 (TXN-004) was recorded.\nAn additional miscellaneous processing fee of $37.00 was also applied.\nTotal balance due: $1337.50",
+    "human_scores": {
+      "factual_grounding": null,
+      "absence_of_invented_numbers": null,
+      "completeness": null,
+      "tone": null
+    }
+  }
+]
