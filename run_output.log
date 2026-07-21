@@ -1,0 +1,436 @@
+================================================================
+maxed-agent full live demo
+================================================================
+
+=== python --version ===
+Python 3.11.13
+
+=== pytest -v (offline, stub mode, zero credentials) ===
+============================= test session starts ==============================
+platform darwin -- Python 3.11.13, pytest-9.1.1, pluggy-1.6.0 -- /Users/home/personal/maxed-assessment/drafting-agent/.venv/bin/python3.11
+cachedir: .pytest_cache
+rootdir: /Users/home/personal/maxed-assessment/drafting-agent
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.14.2
+collecting ... collected 40 items
+
+tests/test_before_after.py::test_score_before_after_reports_honest_movement_or_lack_of_it PASSED [  2%]
+tests/test_calibration.py::test_build_labeling_candidates_has_at_least_ten_with_unique_ids PASSED [  5%]
+tests/test_calibration.py::test_compute_agreement_reports_perfect_agreement_when_labels_match_judge PASSED [  7%]
+tests/test_calibration.py::test_compute_agreement_only_uses_labeled_candidates PASSED [ 10%]
+tests/test_escalation_calibration.py::test_escalate_correction_success_rate_and_abstain_breakdown PASSED [ 12%]
+tests/test_escalation_calibration.py::test_no_escalate_cases_reports_none_not_a_crash PASSED [ 15%]
+tests/test_human_sim.py::test_sparse_approved_draft_is_declined_not_rubber_stamped PASSED [ 17%]
+tests/test_human_sim.py::test_detailed_approved_draft_is_approved PASSED [ 20%]
+tests/test_human_sim.py::test_escalate_corrects_every_wrong_amount_not_just_the_first PASSED [ 22%]
+tests/test_judge.py::test_clean_draft_scores_perfect_on_code_derived_dimensions PASSED [ 25%]
+tests/test_judge.py::test_fabricated_transaction_lowers_invented_numbers_score_not_tone PASSED [ 27%]
+tests/test_judge.py::test_unparseable_judge_output_falls_back_to_neutral_score PASSED [ 30%]
+tests/test_learning_cycle.py::test_learning_cycle_logs_decisions_and_capability_gaps PASSED [ 32%]
+tests/test_learning_cycle.py::test_learning_cycle_resets_log_between_runs PASSED [ 35%]
+tests/test_learning_cycle.py::test_learning_cycle_memory_does_not_leak_across_clients PASSED [ 37%]
+tests/test_ledger.py::test_ledger_balance_matches_manual_sum PASSED      [ 40%]
+tests/test_ledger.py::test_ledger_has_expected_transaction_count PASSED  [ 42%]
+tests/test_ledger.py::test_ledger_find_returns_none_for_unknown_id PASSED [ 45%]
+tests/test_length_bias.py::test_padded_variant_adds_no_new_transaction_or_amount_claims PASSED [ 47%]
+tests/test_length_bias.py::test_naive_prompt_shows_length_bias_in_stub_mode PASSED [ 50%]
+tests/test_length_bias.py::test_anchored_prompt_shows_no_length_bias_in_stub_mode PASSED [ 52%]
+tests/test_loop.py::test_loop_approves_a_clean_draft PASSED              [ 55%]
+tests/test_loop.py::test_loop_escalates_on_persistent_correctable_error PASSED [ 57%]
+tests/test_loop.py::test_loop_abstains_on_persistent_uncorrectable_error PASSED [ 60%]
+tests/test_preference_dataset.py::test_builds_pair_from_approve_with_edit PASSED [ 62%]
+tests/test_preference_dataset.py::test_excludes_approve_as_is_and_decline PASSED [ 65%]
+tests/test_preference_dataset.py::test_write_preference_dataset_round_trips PASSED [ 67%]
+tests/test_retrieval_memory.py::test_sparse_approved_example_is_excluded_from_memory PASSED [ 70%]
+tests/test_retrieval_memory.py::test_memory_is_scoped_to_client_and_never_leaks_across_clients PASSED [ 72%]
+tests/test_retrieval_memory.py::test_vetoed_example_excluded_even_though_otherwise_qualifying PASSED [ 75%]
+tests/test_scaffold.py::test_package_importable PASSED                   [ 77%]
+tests/test_verifier.py::test_verifier_catches_every_injected_error PASSED [ 80%]
+tests/test_verifier.py::test_verifier_accepts_clean_generated_style_draft PASSED [ 82%]
+tests/test_verifier.py::test_verifier_catches_wrong_amount_in_bulleted_list_format PASSED [ 85%]
+tests/test_verifier.py::test_verifier_catches_leaked_revision_feedback PASSED [ 87%]
+tests/test_verifier.py::test_verifier_handles_thousand_separator_amounts PASSED [ 90%]
+tests/test_verifier.py::test_verifier_handles_negative_amount_notations PASSED [ 92%]
+tests/test_verifier.py::test_verifier_catches_all_issues_present_simultaneously PASSED [ 95%]
+tests/test_verifier.py::test_verifier_handles_amount_immediately_before_sentence_period PASSED [ 97%]
+tests/test_verifier.py::test_verifier_catches_wrong_amount_in_markdown_table_row PASSED [100%]
+
+============================== 40 passed in 1.47s ==============================
+
+=== maxed-agent injected-errors (CLIENT-001) ===
+                        Injected-error verifier results                         
+┏━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Case                 ┃ Injected issue       ┃ Caught? ┃ Verifier finding     ┃
+┡━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━┩
+│ wrong amount on a    │ wrong_amount         │ yes     │ TXN-001 is actually  │
+│ real transaction     │                      │         │ 450.00, but the      │
+│                      │                      │         │ draft states [525.0] │
+│                      │                      │         │ for it.              │
+│ fabricated           │ fabricated_transact… │ yes     │ TXN-999 is cited in  │
+│ transaction          │                      │         │ the draft but does   │
+│                      │                      │         │ not exist in the     │
+│                      │                      │         │ ledger.              │
+│ unsupported claim,   │ unsupported_claim    │ yes     │ Amount 43.00 does    │
+│ no evidence          │                      │         │ not match any ledger │
+│                      │                      │         │ transaction or the   │
+│                      │                      │         │ total balance, and   │
+│                      │                      │         │ cites no transaction │
+│                      │                      │         │ id.                  │
+│ wrong total balance  │ wrong_balance        │ yes     │ Draft states total   │
+│                      │                      │         │ balance due as       │
+│                      │                      │         │ 1437.50, but the     │
+│                      │                      │         │ ledger balance is    │
+│                      │                      │         │ 1337.50.             │
+│ clean baseline       │ none (control)       │ yes     │ no issues found      │
+│ (control)            │                      │         │                      │
+└──────────────────────┴──────────────────────┴─────────┴──────────────────────┘
+
+=== maxed-agent injected-errors --client-id CLIENT-002 ===
+                        Injected-error verifier results                         
+┏━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Case                 ┃ Injected issue       ┃ Caught? ┃ Verifier finding     ┃
+┡━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━┩
+│ wrong amount on a    │ wrong_amount         │ yes     │ TXN-029 is actually  │
+│ real transaction     │                      │         │ 600.00, but the      │
+│                      │                      │         │ draft states [675.0] │
+│                      │                      │         │ for it.              │
+│ fabricated           │ fabricated_transact… │ yes     │ TXN-999 is cited in  │
+│ transaction          │                      │         │ the draft but does   │
+│                      │                      │         │ not exist in the     │
+│                      │                      │         │ ledger.              │
+│ unsupported claim,   │ unsupported_claim    │ yes     │ Amount 43.00 does    │
+│ no evidence          │                      │         │ not match any ledger │
+│                      │                      │         │ transaction or the   │
+│                      │                      │         │ total balance, and   │
+│                      │                      │         │ cites no transaction │
+│                      │                      │         │ id.                  │
+│ wrong total balance  │ wrong_balance        │ yes     │ Draft states total   │
+│                      │                      │         │ balance due as       │
+│                      │                      │         │ 835.00, but the      │
+│                      │                      │         │ ledger balance is    │
+│                      │                      │         │ 735.00.              │
+│ clean baseline       │ none (control)       │ yes     │ no issues found      │
+│ (control)            │                      │         │                      │
+└──────────────────────┴──────────────────────┴─────────┴──────────────────────┘
+
+=== maxed-agent generate (CLIENT-001, live model) ===
+Action: approved (attempts: 1)
+
+You are hereby notified of your current account balance due of $1337.50. Your 
+transactions include a January service fee of $450.00 (TXN-001), a payment of 
+-$450.00 (TXN-002), a February service fee of $450.00 (TXN-003), a partial 
+payment of -$300.00 through ACH transaction (TXN-004), a Late fee assessed for 
+an amount of $25.00 (TXN-005), a March service fee of $450.00 (TXN-006), a 
+billing correction credit or -$50.00 (TXN-007), a payment of -$400.00 through a 
+card (TXN-008), a supplemental consulting hours invoice for $320.00 (TXN-009), a
+service fee of $450.00 (TXN-010), another service fee for $325.00 (TXN-011), a 
+payment of -$450.00 through check #1077 (TXN-012), a refund for $180.00 
+(TXN-013), a service fee of $450.00 (TXN-014), another service fee for $450.75 
+(TXN-015), and an additional service fee of $450.00 (TXN-016). 
+
+
+Total balance due: $1337.50
+
+
+
+
+=== maxed-agent learning-cycle --batch-size 6 (live model) ===
+  Learning cycle: batch 1 (no memory) vs batch 2  
+             (with retrieval memory)              
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┓
+┃ Metric                     ┃ Batch 1 ┃ Batch 2 ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━┩
+│ Average attempts to settle │ 1.83    │ 1.33    │
+│ Approved                   │ 6       │ 6       │
+│ Escalated                  │ 0       │ 0       │
+│ Abstained                  │ 0       │ 0       │
+└────────────────────────────┴─────────┴─────────┘
+
+Retrieval memory injected into batch 2:
+Example 1 (human-approved, final text):
+Dear Brightleaf Home Goods, 
+
+Your current account balance due is $1337.50.  2026-01-05 invoice amount=450.00 
+description=January service fee - $450.00 (TXN-001), 2026-02-05 invoice 
+amount=450.00 description=February service fee - $450.00 (TXN-003)
+ 2026-02-18 payment amount=-300.00 description=Partial payment, ACH - $300.00 
+(TXN-004), 2026-01-05 invoice amount=450.00 description=January service fee - 
+$450.00 (TXN-001), 
+
+Your current balance is **$1337.50**
+ 
+
+
+
+**Total balance due: $1337.50**
+
+Example 2 (human-approved, final text):
+Thank you for your continued business.
+
+Dear Brightleaf Home Goods, 
+
+This account statement reflects your current balance due of $1337.50. 
+
+Your ledger transactions are provided below:
+- TXN-001:   $450.00 (January service fee)
+- TXN-002:   - $450.00 (Payment received, check #1042)
+- TXN-003:    $450.00 (February service fee) 
+- TXN-004:   - $300.00 (Partial payment, ACH)
+- TXN-005:   $25.00 (Late fee assessed)
+- TXN-006:    $450.00 (March service fee) 
+- TXN-007:   - $50.00 (Billing correction credit)
+- TXN-008:  $-400.00  (Payment received, card)
+- TXN-009:    $320.00  (Supplemental consulting hours) 
+- TXN-010:   $450.00 (April service fee)
+- TXN-011:    $325.00  (Software license renewal) 
+- TXN-012:   - $450.00 (Payment received, check #1077) 
+- TXN-013:  -  $180.00 (Refund, returned equipment) 
+- TXN-014:    $450.00 (May service fee)
+- TXN-015:   $450.00 (May service fee, satellite office)
+- TXN-016:  - $450.00 (Payment received, ACH) 
+- TXN-017:   - $450.00 (Payment received, ACH, satellite office) 
+- TXN-018:    $60.00 (Rush processing fee) 
+- TXN-019:   $450.00 (June service fee)  
+- TXN-020:    $450.00 (June service fee, satellite office)
+- TXN-021:   - $450.00 (Payment received on check #1103 )
+- TXN-022: *  -$40.00 (Loyalty discount applied) 
+
+
+
+Total balance due: $1337.50. 
+
+
+ 
+
+
+Example 3 (human-approved, final text):
+$450.00 (TXN-001) -   A service fee for January  
+-$450.00 (TXN-002) - A payment was received on check #1042 
+-$300.00 (TXN-004) - A partial payment via ACH 
+$25.00 (TXN-005) -  A late fee assessment was made.  
+$450.00 (TXN-006) - Service Fee for March  
+-$50.00 (TXN-007) - Billing correction credit applied 
+-$400.00 (TXN-008) - A payment was received via card. 
+$320.00 (TXN-009) - Supplemental consulting hours billed
+-$450.00 (TXN-012) - Payment from check #1077
+-$180.00 (TXN-013) - A refund for returned equipment was processed
+$450.00 (TXN-014) - Service fee for May 
+$450.00 (TXN-015)  a service fee for a satellite office  
+-$450.00 (TXN-016) - Payment via ACH 
+-$450.00 (TXN-017) - Two payments via ACH were received, one for May and one for
+the Satellite office in this transaction
+-$60.00 (TXN-018) -  A processing fee was applied 
+$450.00 (TXN-019)  - Service Fee in June 
+$450.00 (TXN-020)  a service fee for a satellite office in June also 
+-$450.00 (TXN-021)  - A payment was received via check #1103
+-$40.00 (TXN-022) - Loyalty discount applied from vendor's account 
+$275.00 (TXN-023)  A onboarding fee for new integrations was billed
+-$200.00 (TXN-024)- A partial payment via ACH 
+$25.00 (TXN-025)  - A late fee assessment was applied on vendor's account 
+$450.00 (TXN-026)-Service Fee for July, prepay service 
+-$22.50 (TXN-027)   - Prepayment discount applied 
+-$300.00 (TXN-028)-  Payment received via credit card 
+
+Total balance due: $1337.50 
+
+
+
+
+=== maxed-agent escalation-calibration ===
+Escalate cases: 0
+  no escalate cases in the current log to check
+
+Abstain cases: 0
+  no abstain cases in the current log to check
+
+=== maxed-agent preference-dataset ===
+Preference pairs built: 3
+written to data/eval/preference_dataset.jsonl
+
+Sample (approved_with_cosmetic_edit):
+rejected: Dear Brightleaf Home Goods, 
+
+This account statement reflects your current balance due of $1337.50. 
+
+Your ledger transactions are provided below:
+- TXN-001:   $450.00 (January service fee)
+- TXN-002:
+chosen:   Thank you for your continued business.
+
+Dear Brightleaf Home Goods, 
+
+This account statement reflects your current balance due of $1337.50. 
+
+Your ledger transactions are provided below:
+- TXN-001:   
+
+=== maxed-agent list-decisions (before veto) ===
+                          Decisions in the current log                          
+┏━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃          ┃            ┃          ┃ Human        ┃             ┃ Final text   ┃
+┃ Id       ┃ Client     ┃ Action   ┃ decision     ┃ Memory veto ┃ preview      ┃
+┡━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│ dd3de461 │ CLIENT-001 │ approved │ decline      │ no          │              │
+│ dd27fe48 │ CLIENT-001 │ approved │ approve_as_… │ no          │ Dear         │
+│          │            │          │              │             │ Brightleaf   │
+│          │            │          │              │             │ Home Goods,  │
+│          │            │          │              │             │ Your current │
+│          │            │          │              │             │ account      │
+│          │            │          │              │             │ balance d    │
+│ c5ee8805 │ CLIENT-001 │ approved │ decline      │ no          │              │
+│ 9b399a93 │ CLIENT-001 │ approved │ approve_wit… │ no          │ Thank you    │
+│          │            │          │              │             │ for your     │
+│          │            │          │              │             │ continued    │
+│          │            │          │              │             │ business.    │
+│          │            │          │              │             │ Dear         │
+│          │            │          │              │             │ Brightleaf   │
+│          │            │          │              │             │ Home         │
+│ eb245933 │ CLIENT-001 │ approved │ approve_as_… │ no          │ $450.00      │
+│          │            │          │              │             │ (TXN-001) -  │
+│          │            │          │              │             │ A service    │
+│          │            │          │              │             │ fee for      │
+│          │            │          │              │             │ January      │
+│          │            │          │              │             │ -$450.00 (   │
+│ ac95005c │ CLIENT-001 │ approved │ decline      │ no          │              │
+│ 9b1098fb │ CLIENT-001 │ approved │ approve_wit… │ no          │ Thank you    │
+│          │            │          │              │             │ for your     │
+│          │            │          │              │             │ continued    │
+│          │            │          │              │             │ business.    │
+│          │            │          │              │             │ Dear         │
+│          │            │          │              │             │ Brightleaf   │
+│          │            │          │              │             │ Home         │
+│ 6c8e2ea6 │ CLIENT-001 │ approved │ decline      │ no          │              │
+│ 6437bb2d │ CLIENT-001 │ approved │ approve_as_… │ no          │ Dear         │
+│          │            │          │              │             │ Brightleaf   │
+│          │            │          │              │             │ Home Goods,  │
+│          │            │          │              │             │ Your current │
+│          │            │          │              │             │ account      │
+│          │            │          │              │             │ balance d    │
+│ 63441b37 │ CLIENT-001 │ approved │ approve_wit… │ no          │ Thank you    │
+│          │            │          │              │             │ for your     │
+│          │            │          │              │             │ continued    │
+│          │            │          │              │             │ business.    │
+│          │            │          │              │             │ Dear         │
+│          │            │          │              │             │ Brightleaf   │
+│          │            │          │              │             │ Home         │
+│ 38f7e0e2 │ CLIENT-001 │ approved │ approve_as_… │ no          │ Dear         │
+│          │            │          │              │             │ Brightleaf   │
+│          │            │          │              │             │ Home Goods,  │
+│          │            │          │              │             │ This message │
+│          │            │          │              │             │ confirms     │
+│          │            │          │              │             │ your curr    │
+│ ca3bc5a9 │ CLIENT-001 │ approved │ approve_as_… │ no          │ Dear         │
+│          │            │          │              │             │ Brightleaf   │
+│          │            │          │              │             │ Home Goods,  │
+│          │            │          │              │             │ Your current │
+│          │            │          │              │             │ account      │
+│          │            │          │              │             │ balance d    │
+└──────────┴────────────┴──────────┴──────────────┴─────────────┴──────────────┘
+
+=== maxed-agent veto-memory dd3de461 ===
+Decision dd3de461 will no longer be used as a retrieval-memory example.
+The draft itself is untouched; this only affects future memory retrieval.
+
+=== maxed-agent list-decisions (after veto, note memory veto column) ===
+                          Decisions in the current log                          
+┏━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃          ┃            ┃          ┃ Human        ┃             ┃ Final text   ┃
+┃ Id       ┃ Client     ┃ Action   ┃ decision     ┃ Memory veto ┃ preview      ┃
+┡━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│ dd3de461 │ CLIENT-001 │ approved │ decline      │ yes         │              │
+│ dd27fe48 │ CLIENT-001 │ approved │ approve_as_… │ no          │ Dear         │
+│          │            │          │              │             │ Brightleaf   │
+│          │            │          │              │             │ Home Goods,  │
+│          │            │          │              │             │ Your current │
+│          │            │          │              │             │ account      │
+│          │            │          │              │             │ balance d    │
+│ c5ee8805 │ CLIENT-001 │ approved │ decline      │ no          │              │
+│ 9b399a93 │ CLIENT-001 │ approved │ approve_wit… │ no          │ Thank you    │
+│          │            │          │              │             │ for your     │
+│          │            │          │              │             │ continued    │
+│          │            │          │              │             │ business.    │
+│          │            │          │              │             │ Dear         │
+│          │            │          │              │             │ Brightleaf   │
+│          │            │          │              │             │ Home         │
+│ eb245933 │ CLIENT-001 │ approved │ approve_as_… │ no          │ $450.00      │
+│          │            │          │              │             │ (TXN-001) -  │
+│          │            │          │              │             │ A service    │
+│          │            │          │              │             │ fee for      │
+│          │            │          │              │             │ January      │
+│          │            │          │              │             │ -$450.00 (   │
+│ ac95005c │ CLIENT-001 │ approved │ decline      │ no          │              │
+│ 9b1098fb │ CLIENT-001 │ approved │ approve_wit… │ no          │ Thank you    │
+│          │            │          │              │             │ for your     │
+│          │            │          │              │             │ continued    │
+│          │            │          │              │             │ business.    │
+│          │            │          │              │             │ Dear         │
+│          │            │          │              │             │ Brightleaf   │
+│          │            │          │              │             │ Home         │
+│ 6c8e2ea6 │ CLIENT-001 │ approved │ decline      │ no          │              │
+│ 6437bb2d │ CLIENT-001 │ approved │ approve_as_… │ no          │ Dear         │
+│          │            │          │              │             │ Brightleaf   │
+│          │            │          │              │             │ Home Goods,  │
+│          │            │          │              │             │ Your current │
+│          │            │          │              │             │ account      │
+│          │            │          │              │             │ balance d    │
+│ 63441b37 │ CLIENT-001 │ approved │ approve_wit… │ no          │ Thank you    │
+│          │            │          │              │             │ for your     │
+│          │            │          │              │             │ continued    │
+│          │            │          │              │             │ business.    │
+│          │            │          │              │             │ Dear         │
+│          │            │          │              │             │ Brightleaf   │
+│          │            │          │              │             │ Home         │
+│ 38f7e0e2 │ CLIENT-001 │ approved │ approve_as_… │ no          │ Dear         │
+│          │            │          │              │             │ Brightleaf   │
+│          │            │          │              │             │ Home Goods,  │
+│          │            │          │              │             │ This message │
+│          │            │          │              │             │ confirms     │
+│          │            │          │              │             │ your curr    │
+│ ca3bc5a9 │ CLIENT-001 │ approved │ approve_as_… │ no          │ Dear         │
+│          │            │          │              │             │ Brightleaf   │
+│          │            │          │              │             │ Home Goods,  │
+│          │            │          │              │             │ Your current │
+│          │            │          │              │             │ account      │
+│          │            │          │              │             │ balance d    │
+└──────────┴────────────┴──────────┴──────────────┴─────────────┴──────────────┘
+
+=== maxed-agent veto-memory not-a-real-id (expected failure case) ===
+No decision with id not-a-real-id found in the current log.
+
+=== maxed-agent length-bias (live model) ===
+  Length bias: naive rubric vs anchored rubric, same sparse-plus-padding pair   
+┏━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃                ┃ Sparse         ┃ Padded         ┃ Completeness   ┃          ┃
+┃ Prompt         ┃ completeness/… ┃ completeness/… ┃ gap            ┃ Tone gap ┃
+┡━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│ naive (vague)  │ 5/5            │ 5/5            │ 0              │ 0        │
+│ anchored       │ 2/5            │ 2/5            │ 0              │ 0        │
+│ (mine)         │                │                │                │          │
+└────────────────┴────────────────┴────────────────┴────────────────┴──────────┘
+
+=== maxed-agent calibration (live model, vs data/eval/human_labels.json) ===
+              Judge calibration against 12 hand-labeled drafts               
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
+┃ Dimension                   ┃ Spearman ┃ Exact agreement ┃ Within 1 point ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
+│ factual_grounding           │ 0.87     │ 50%             │ 67%            │
+│ absence_of_invented_numbers │ 0.99     │ 75%             │ 75%            │
+│ completeness                │ 0.68     │ 67%             │ 100%           │
+│ tone                        │ 0.61     │ 50%             │ 83%            │
+└─────────────────────────────┴──────────┴─────────────────┴────────────────┘
+
+=== maxed-agent before-after --batch-size 3 (live model) ===
+  Before (no memory) vs after (with retrieval   
+             memory), judge-scored              
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━┓
+┃                             ┃ Before ┃ After ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━┩
+│ factual_grounding           │ 4.67   │ 5.00  │
+│ absence_of_invented_numbers │ 5.00   │ 5.00  │
+│ completeness                │ 3.67   │ 4.00  │
+│ tone                        │ 4.67   │ 5.00  │
+│ overall average             │ 4.50   │ 4.75  │
+└─────────────────────────────┴────────┴───────┘
+
+Moved: yes
