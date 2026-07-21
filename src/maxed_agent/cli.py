@@ -10,7 +10,10 @@ from maxed_agent.eval.before_after import score_before_after
 from maxed_agent.eval.calibration import build_labeling_candidates, compute_agreement, load_human_labels
 from maxed_agent.eval.length_bias import measure_anchored, measure_naive
 from maxed_agent.fixtures.generate_fixtures import DEFAULT_CLIENT_ID, load_fixtures
+from maxed_agent.learning.decision_log import DEFAULT_LOG_PATH, load_decisions, veto_memory_example
+from maxed_agent.learning.escalation_calibration import calibrate_abstain_escalate
 from maxed_agent.learning.learning_cycle import _batch_stats, run_learning_cycle
+from maxed_agent.learning.preference_dataset import build_preference_dataset, write_preference_dataset
 from maxed_agent.model_client import ModelClient
 
 load_dotenv()
@@ -167,6 +170,85 @@ def before_after(batch_size: int = 3, client_id: str = DEFAULT_CLIENT_ID) -> Non
     console.print(table)
     console.print()
     console.print(f"[bold]Moved:[/bold] {'yes' if result.moved else 'no'}")
+
+
+@app.command(name="escalation-calibration")
+def escalation_calibration() -> None:
+    report = calibrate_abstain_escalate()
+
+    console.print(f"[bold]Escalate cases:[/bold] {report.escalate_count}")
+    if report.escalate_correction_success_rate is not None:
+        resolved = report.escalate_corrections_clean
+        total = report.escalate_count
+        rate = report.escalate_correction_success_rate
+        console.print(f"  corrections that fully resolved the draft: {resolved}/{total} ({rate:.0%})")
+    else:
+        console.print("  no escalate cases in the current log to check")
+
+    console.print(f"\n[bold]Abstain cases:[/bold] {report.abstain_count}")
+    if report.abstain_reason_breakdown:
+        table = Table(title="Abstain reasons")
+        table.add_column("Uncorrectable issue type")
+        table.add_column("Count")
+        for reason, count in sorted(report.abstain_reason_breakdown.items(), key=lambda kv: -kv[1]):
+            table.add_row(reason, str(count))
+        console.print(table)
+    else:
+        console.print("  no abstain cases in the current log to check")
+
+
+@app.command(name="preference-dataset")
+def preference_dataset() -> None:
+    pairs = build_preference_dataset()
+    write_preference_dataset(pairs)
+
+    console.print(f"[bold]Preference pairs built:[/bold] {len(pairs)}")
+    console.print("written to data/eval/preference_dataset.jsonl")
+    if pairs:
+        console.print()
+        console.print(f"[bold]Sample ({pairs[0].source}):[/bold]")
+        console.print(f"[bold]rejected:[/bold] {pairs[0].rejected[:200]}")
+        console.print(f"[bold]chosen:[/bold]   {pairs[0].chosen[:200]}")
+
+
+@app.command(name="list-decisions")
+def list_decisions() -> None:
+    decisions = load_decisions(DEFAULT_LOG_PATH)
+
+    if not decisions:
+        console.print("No decisions in the current log.")
+        return
+
+    table = Table(title="Decisions in the current log")
+    table.add_column("Id")
+    table.add_column("Client")
+    table.add_column("Action")
+    table.add_column("Human decision")
+    table.add_column("Memory veto")
+    table.add_column("Final text preview")
+    for d in decisions:
+        preview = (d.get("final_text") or "")[:60].replace("\n", " ")
+        table.add_row(
+            d.get("id", "(no id, logged before this feature)"),
+            d["client_id"],
+            d["loop_action"],
+            d["human_decision"],
+            "yes" if d.get("memory_veto") else "no",
+            preview,
+        )
+    console.print(table)
+
+
+@app.command(name="veto-memory")
+def veto_memory(decision_id: str) -> None:
+    found = veto_memory_example(decision_id, DEFAULT_LOG_PATH)
+    if found:
+        message = f"Decision {decision_id} will no longer be used as a retrieval-memory example."
+        console.print(message)
+        console.print("The draft itself is untouched; this only affects future memory retrieval.")
+    else:
+        console.print(f"No decision with id {decision_id} found in the current log.")
+        raise typer.Exit(code=1)
 
 
 if __name__ == "__main__":

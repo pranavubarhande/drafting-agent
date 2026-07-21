@@ -20,6 +20,7 @@ def get_approved_examples(client_id: str, path: Path = DEFAULT_LOG_PATH, limit: 
         and d.get("human_decision") in APPROVED_DECISIONS
         and d.get("final_text")
         and _meets_quality_bar(d["final_text"])
+        and not d.get("memory_veto", False)
     ]
     return approved[-limit:]
 
