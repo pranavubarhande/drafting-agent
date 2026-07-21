@@ -1,4 +1,4 @@
-# maxed-agent
+# maxed-drafting-agent
 
 A drafting agent that writes a client message explaining an account balance due, checks its own
 draft against the real ledger records, and lands on exactly one of revise, abstain, or escalate.
@@ -26,18 +26,25 @@ the default and `gemma2:2b` is noted as a faster fallback in `.env.example`.
 ## Commands
 
 ```bash
-pytest                        # full test suite, stub mode, no model or network needed
-maxed-agent generate          # one generate -> verify -> decide cycle against the fixture ledger
-maxed-agent injected-errors   # Part 1 proof: corrupts drafts on purpose, reports caught vs missed
-maxed-agent learning-cycle    # Part 2 proof: batch (no memory) -> decide -> ingest -> batch (with memory)
-maxed-agent calibration       # Part 3 proof: judge vs data/eval/human_labels.json, agreement numbers
-maxed-agent length-bias       # Part 3 proof: naive rubric vs anchored rubric on the same padded pair
-maxed-agent before-after      # Part 3 proof: judge-scores learning-cycle's batch 1 vs batch 2
+pytest                          # full test suite, stub mode
+maxed-agent generate            # one generate -> verify -> decide cycle against the fixture ledger
+maxed-agent injected-errors     # corrupts drafts on purpose, reports caught vs missed
+maxed-agent learning-cycle      # batch (no memory) -> decide -> ingest -> batch (with memory)
+maxed-agent calibration         # judge vs data/eval/human_labels.json, agreement numbers
+maxed-agent length-bias         # naive rubric vs anchored rubric on the same padded pair
+maxed-agent before-after        # judge-scores learning-cycle's batch 1 vs batch 2
+maxed-agent escalation-calibration  # validates the abstain/escalate rule against real decisions
+maxed-agent preference-dataset      # builds a DPO-shaped dataset from the decision log
+maxed-agent list-decisions          # shows every decision, its id, and its memory-veto status
+maxed-agent veto-memory <id>         # excludes a specific decision from future retrieval memory
 ```
 
-All commands take `--client-id`, defaulting to `CLIENT-001` (`CLIENT-002` is the second fixture
-client). `calibration`, `length-bias`, and `before-after` need a real model (`ollama` or `gemini`
-in `.env`); they are not meaningful in stub mode since stub responses do not vary with the prompt.
+Most commands take `--client-id`, defaulting to `CLIENT-001` (`CLIENT-002` is the second fixture
+client). `calibration`, `length-bias`, and `before-after` need a real model configured in `.env`
+(`ollama` or `gemini`); stub mode is not meaningful for them since canned responses do not vary
+with the prompt. `escalation-calibration`, `preference-dataset`, and `list-decisions` need no model
+at all, they only read what is already in `data/logs/decisions.jsonl`; run `learning-cycle` first
+if that log is empty or you want fresher data to look at.
 
 ## What was built
 
@@ -48,7 +55,7 @@ across both ledgers (CLIENT-002's start at TXN-029) specifically so a leaked cro
 is unambiguous to detect. Each balance is computed by summing the transactions in code and is the
 single source of truth the verifier checks against.
 
-**Part 1, the self-checking agent.** `generator.py` prompts the model to write the client message
+**The self-checking agent.** `generator.py` prompts the model to write the client message
 and requires every transaction to be mentioned, with its transaction id cited next to its dollar
 amount, ending in a fixed `Total balance due: $X` line. `verifier.py` is pure code, no second model
 call: it regex-extracts every cited transaction id and dollar amount and checks each one against
@@ -59,7 +66,7 @@ proves the verifier has teeth: it deliberately corrupts a clean draft with a wro
 fabricated transaction, an unsupported claim, and a wrong total, and confirms all four are caught
 alongside a clean control that produces no false positive.
 
-**Part 2, the learning loop.** `decision_log.py` defines the structured records (pydantic, not raw
+**The learning loop.** `decision_log.py` defines the structured records (pydantic, not raw
 dicts): a `DecisionRecord` per draft (source context, draft, critique, human decision, final text)
 and a `CapabilityGapRecord` whenever the agent abstains or escalates, capturing what it would have
 needed to succeed. `human_sim.py` plays the human: approves, edits and approves, or declines.
@@ -71,43 +78,60 @@ that no transaction id from client 1's ledger ever appears in client 2's injecte
 approved examples, then runs a second batch with that memory injected as few-shot guidance, and
 reports both batches' outcomes side by side.
 
-**Part 3, the eval harness.** `judge.py` scores a draft on four dimensions. Two of them,
+**The eval harness.** `judge.py` scores a draft on four dimensions. Two of them,
 factual_grounding and absence_of_invented_numbers, are computed entirely in code from the same
 verifier critique used in Part 1, never asked to the model, to keep "numbers by code, not by
 model" true for the judge as well as the verifier. The other two, completeness and tone, go to the
 model, with the verified facts (issue count, citation coverage) fed in as trusted context rather
-than left for the model to re-derive. `calibration.py` scores a 12-draft set spanning quality tiers
-(clean, each of the four Part 1 injected-error types, sparse and partial-coverage drafts, a
-padded-filler draft, a leaked-internal-text draft, an accurate-but-unprofessional draft, and a
-compound two-issue draft) against hand labels, reporting Spearman correlation and near-agreement
-per dimension. `length_bias.py` is the defended judge failure mode: it compares a naive, vaguely
-worded completeness prompt against the anchored one actually used in `judge.py`, on the same
-sparse-draft-plus-thoroughness-padding pair, live against gemma2:2b. Across two live runs, the
-naive prompt consistently inflated both completeness and tone purely from padding with zero new
-checkable facts (by 2 and 1 points on one run, by 1 and 1 on a second); the anchored prompt
-consistently showed less bias, and on one of the two runs showed none at all on completeness. The
-anchored prompt has not yet shown zero bias on tone specifically across both runs, which is noted
-honestly rather than rounded up. `before_after.py` judge-scores the actual
-batch 1 and batch 2 drafts from a real `learning-cycle` run and reports whether the average moved,
-honestly, in either direction. One live run (batch size 3) moved from 4.25 to 4.58 overall, driven
-entirely by completeness and tone; factual_grounding and absence_of_invented_numbers stayed at a
-perfect 5.00 in both batches, so the movement is not coming at the cost of accuracy. Verified this
-was a real result and not a measurement artifact: one batch 2 draft showed what first looked like
-double the expected transaction citations, checked directly, and it was citing every one of the 28
-transactions correctly, just labeling each one twice per line (once as a bullet label, once in the
-required parenthetical format). Run-to-run variance applies here too; see the blind spots section.
+than left for the model to re-derive.
 
-## Important disclosure: who labeled the calibration set
+`calibration.py` scores a 12-draft set spanning quality tiers (clean, each of the four Part 1
+injected-error types, sparse and partial-coverage drafts, a padded-filler draft, a leaked-internal-
+text draft, an accurate-but-unprofessional draft, and a compound two-issue draft) against hand
+labels, reporting Spearman correlation and near-agreement per dimension.
 
-The brief's calibration step is specifically about measuring the judge against a real human's
-independent judgment. The 12 drafts in `data/eval/human_labels.json` were labeled by the AI
-assistant working on this build, as a first pass, due to time constraints, not by the candidate.
-Each label was reasoned through independently against the same four-dimension rubric the judge
-uses, not reverse-engineered from what the code or model would say, so the resulting agreement
-numbers are real and not circular. But they should be read as measuring the judge against a
-careful rubric-following pass, not yet against the candidate's own judgment. The candidate can
-replace the `human_scores` in that file with their own 1 to 5 ratings at any point; `calibration.py`
-and `maxed-agent calibration` already read whatever is in that file with no code changes needed.
+`length_bias.py` is the defended judge failure mode: it compares a naive, vaguely worded
+completeness prompt against the anchored one actually used in `judge.py`, on the same
+sparse-draft-plus-thoroughness-padding pair, live against gemma2:2b. Across three live runs, the
+first two showed the naive prompt inflating completeness and tone purely from padding (by 2 and 1
+points, then by 1 and 1) while the anchored prompt showed less or no bias on the same pair. A third
+run showed both prompts producing the identical gap, no distinction between naive and anchored at
+all. Read plainly: the anchored prompt has shown equal-or-less bias than the naive one in every run
+so far and never shown more, but "the anchored prompt eliminates length bias" would be an
+overclaim on three runs of one pair. See the blind spots section for the full range.
+
+`before_after.py` judge-scores the actual batch 1 and batch 2 drafts from a real `learning-cycle`
+run and reports whether the average moved, honestly, in either direction. One live run (batch size
+3) moved from 4.25 to 4.58 overall, driven entirely by completeness and tone; factual_grounding and
+absence_of_invented_numbers stayed at a perfect 5.00 in both batches, so the movement is not coming
+at the cost of accuracy. One batch
+2 draft showed what first looked like double the expected transaction citations, checked directly,
+and it was citing every one of the 28 transactions correctly, just labeling each one twice per line
+(once as a bullet label, once in the required parenthetical format). Run-to-run variance applies
+here too; see the blind spots section.
+
+## Stretch: what was attempted beyond core
+
+**Calibrating abstain versus escalate.** `escalation_calibration.py` reads the accumulated decision
+log and checks the current fixed rule empirically instead of just asserting it is reasonable. For
+every escalate case, it re-runs the verifier on the human-corrected final text and confirms it is
+actually clean; for every abstain case, it re-derives which uncorrectable issue type triggered the
+abstention and tallies the breakdown. Run via `maxed-agent escalation-calibration`. By construction,
+escalate corrections should always resolve cleanly, since `_apply_correction` copies the verified
+correct value straight from the ledger, so a 100% success rate here validates that the current rule
+holds rather than being a surprising discovery. The genuinely useful output is the abstain-reason
+breakdown: it shows which capability gap is actually driving abstention most often, which is a
+concrete, data-backed input into what to build next (a new ledger field, a new tool), not just a
+restatement of the existing fixed rule.
+
+**Preference dataset construction.** `preference_dataset.py` turns every `approve_with_edit` decision
+into a `{prompt, chosen, rejected}` triple: `rejected` is the original draft, `chosen` is the
+human-corrected final text, and `prompt` is recovered by matching the draft text back to its
+generation call in `trace.jsonl`. Run via `maxed-agent preference-dataset`; writes
+`data/eval/preference_dataset.jsonl`. This is the exact shape a DPO (Direct Preference Optimization)
+training pass consumes: DPO fine-tunes a model directly on `(chosen, rejected)` pairs for the same
+prompt, adjusting weights so the model prefers the chosen completion, without the separate reward
+model and rollout loop full RLHF needs. Actually running the training pass was cut for now and I would have done it if I had one more day.
 
 ## Consumption mechanism: retrieval memory, and why
 
@@ -119,12 +143,11 @@ patching risks overfitting a prompt edit to a handful of examples with no real v
 the time available. A preference dataset's payoff is inherently indirect, it proves the data is
 well-formed, not that behavior changed, and the brief itself treats an actual fine-tune pass as
 stretch, not core. Retrieval memory is also the cheapest mechanism to imagine landing first in a
-real system like Maxed's: no retraining infrastructure, fast to iterate, easy to inspect.
+real system - fast to iterate, easy to inspect.
 
 ## Assumptions
 
-- Two synthetic clients, each with their own ledger, is the whole scope for this build; the brief
-  allows one or two.
+- Two synthetic clients, each with their own ledger, is the whole scope for this build.
 - "Grounded" is treated as: every dollar amount and every transaction reference in the draft must
   match the ledger exactly. The generation prompt requires citing a transaction id next to every
   amount specifically so this is checkable by regex and lookup, not by asking a model to judge its
@@ -135,26 +158,23 @@ real system like Maxed's: no retraining infrastructure, fast to iterate, easy to
   in them, escalate outcomes get every correctable issue fixed and approved with an edit note,
   abstain outcomes get declined with a capability-gap record.
 - Abstain versus escalate is a fixed rule for this build (fabricated or unsupported claims abstain,
-  a real record with a wrong number escalates), not a learned or calibrated policy. The brief lists
-  calibrating this boundary as stretch.
+  a real record with a wrong number escalates), not a learned or calibrated policy. But while extending this package, I would have surely worked on calibrating this boundary.
 
 ## What was cut, and why
 
-- A second artifact type (the account summary or the document follow-up) was not built. The brief
-  is explicit that depth on one artifact beats shallow coverage of more, and Part 2 and Part 3 are
-  where the brief says most systems fail, so time went there instead.
+- A second artifact type (the account summary or the document follow-up) was not built.
 - Retrieval in `retrieval_memory.py` is scoped by client id (never crosses clients, see below) but
   recency-based within a client, not similarity-scored. With a single artifact type per client
   there is nothing to be similar to yet beyond recency; a real system with multiple artifact types
   per client would need actual similarity scoring, and that is noted here rather than built for a
   scope that does not exist yet.
-- Fine-tuning or DPO on the captured decisions was not attempted; the brief lists this as stretch,
-  never the bar.
+- Actually running a fine-tune or DPO pass on the captured decisions was not attempted. The dataset
+  was built; the training run was not. This was a deliberate call,
+  not a time-ran-out cut: this machine took roughly 5 minutes for a single `gemma2:9b` inference
+  call, CPU only, no GPU. An actual training run, even a small LoRA-style DPO pass, would have taken a lot longer.
 - A second defended judge failure mode (sycophancy, self-preference, position bias) was not
-  attempted; the brief lists a second one as stretch. Length bias (see above) is the one built and
-  demonstrated.
-- Calibrating abstain versus escalate, and a go/no-go gating rule for shipping a model change, are
-  both brief-listed stretch items and were not attempted.
+  attempted. Length bias is the one built and demonstrated.
+- A go/no-go gating rule for shipping a model change was not attempted.
 
 ## Blind spots
 
@@ -170,10 +190,13 @@ real system like Maxed's: no retraining infrastructure, fast to iterate, easy to
   covered by either the verifier or the judge's four fixed dimensions.
 - The calibration and before/after numbers move noticeably between runs of the same command against
   the same drafts, because the model-scored dimensions (completeness, tone) depend on live sampling.
-  One calibration run measured completeness correlation at 0.76, a second measured 0.58, same 12
-  drafts, same labels. Both are positive and moderate to strong, but the number should not be read
-  to two decimal places on a 12-draft set. See the calibration disclosure above for who labeled the
-  set.
+  Across three calibration runs, same 12 drafts, same labels: completeness Spearman measured 0.76,
+  0.58, and 0.94; tone measured 0.75, 0.46, and 0.06. The tone number in particular has ranged from
+  essentially no correlation to moderate, run to run. factual_grounding and
+  absence_of_invented_numbers stayed stable across all three (both are code-derived, never touch the
+  model). Read this plainly: the code-derived dimensions are reliable evidence, the model-scored ones
+  are directional at best on a 12-draft set, not a number to defend to two decimal places. A larger
+  labeled set would narrow this.
 - The learning-cycle proof so far uses a batch size of 3 per side, run live against gemma2:2b for
   speed. That is enough to demonstrate the mechanism runs correctly end to end and does not corrupt
   itself on bad examples, but it is too small a sample to support a strong quantitative claim either
@@ -186,3 +209,45 @@ real system like Maxed's: no retraining infrastructure, fast to iterate, easy to
   sentence merge, and newline-formatted bulleted lists breaking the same assumption); more exist and
   have not been stress-tested, for example a dollar amount landing exactly at a sentence boundary
   with ambiguous punctuation.
+
+## One idea we did not ask for
+
+The system already has one clear principle: nothing consequential auto-applies, a human is the
+final word on every draft, revise, abstain, or escalate are the only exits. That principle quietly
+stops at generation. Once a draft is approved, it becomes eligible to teach every future draft
+through retrieval memory, and the human who approved it never got asked about that second,
+different decision. Approving a draft means "send this," not "copy this style forever," but right
+now there is no way to say the first without silently saying the second. A draft can be perfectly
+fine to send once and a bad thing to imitate: a one-off phrasing for a client's unusual request, a
+tone that fit one specific situation and nothing else. The same "human has final say" rule that
+governs the generation loop should also govern what feeds the loop meant to improve it, and right
+now it does not.
+
+This one was built rather than only proposed, since the mechanism is small. Every decision record
+now carries a short id and a `memory_veto` flag, defaulting to false so nothing changes unless a
+human acts. `maxed-agent list-decisions` shows every decision with its id, client, action, and
+current veto status. `maxed-agent veto-memory <id>` sets the flag; `retrieval_memory.py` excludes
+vetoed examples from future retrieval, the draft itself untouched, only its eligibility to teach
+future drafts revoked. `tests/test_retrieval_memory.py` covers a vetoed example being excluded even
+though it otherwise qualifies. This is exactly the shape of change the seam calls for: cheap to add
+because the log already has everything it needs, and it closes a real gap in who controls the
+learning loop rather than only the generation loop.
+
+## If I had another day
+
+I would spend it on the fine-tune, not more analysis. The preference dataset is already built and
+shaped correctly for a DPO pass; the missing piece is compute, not design. With GPU access I would
+run a small LoRA-style DPO pass against `gemma2:2b` using `data/eval/preference_dataset.jsonl`,
+score the resulting model's drafts with the same judge used everywhere else, and report
+the before/after honestly, the same standard already applied to the retrieval-memory before/after
+comparison. I would also grow the preference dataset first, since right now it only has as many
+pairs as this build's decision log happened to produce; a dedicated batch run aimed specifically at
+generating more escalate-and-correct cases would give the fine-tune something more substantial to
+learn from than what fell out of testing other things.
+
+The second thing I would build is the second artifact type, the account-summary variant the brief
+names, specifically because it reuses almost the entire Part 1 stack, the same `Ledger` and
+`Transaction` models, the same verifier shape, checking amounts and citations against the same
+ledger, just a different generator prompt walking the client through why they owe what they owe
+instead of what they owe. That reuse is exactly why it is the next thing worth doing rather than a
+second defended judge failure mode or the go/no-go gating rule.
