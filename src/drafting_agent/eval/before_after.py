@@ -1,9 +1,9 @@
 from pydantic import BaseModel
 
-from maxed_agent.eval.judge import JudgeScore, score_draft
-from maxed_agent.fixtures.generate_fixtures import Ledger
-from maxed_agent.learning.learning_cycle import LearningCycleReport
-from maxed_agent.model_client import ModelClient
+from drafting_agent.eval.judge import JudgeScore, score_draft
+from drafting_agent.fixtures.generate_fixtures import Ledger
+from drafting_agent.learning.learning_cycle import LearningCycleReport
+from drafting_agent.model_client import ModelClient
 
 
 class BeforeAfterReport(BaseModel):

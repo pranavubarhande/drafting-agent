@@ -1,6 +1,6 @@
-from maxed_agent.eval.calibration import build_labeling_candidates, compute_agreement
-from maxed_agent.fixtures.generate_fixtures import load_fixtures
-from maxed_agent.model_client import ModelClient
+from drafting_agent.eval.calibration import build_labeling_candidates, compute_agreement
+from drafting_agent.fixtures.generate_fixtures import load_fixtures
+from drafting_agent.model_client import ModelClient
 
 
 def test_build_labeling_candidates_has_at_least_ten_with_unique_ids():

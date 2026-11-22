@@ -1,7 +1,7 @@
-from maxed_agent.agent.verifier import count_txn_citations
-from maxed_agent.eval.length_bias import build_padded_variant, measure_anchored, measure_naive
-from maxed_agent.fixtures.generate_fixtures import load_fixtures
-from maxed_agent.model_client import ModelClient
+from drafting_agent.agent.verifier import count_txn_citations
+from drafting_agent.eval.length_bias import build_padded_variant, measure_anchored, measure_naive
+from drafting_agent.fixtures.generate_fixtures import load_fixtures
+from drafting_agent.model_client import ModelClient
 
 
 def _sparse_draft(ledger) -> str:

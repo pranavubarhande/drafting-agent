@@ -4,11 +4,11 @@ from pathlib import Path
 from pydantic import BaseModel
 from scipy.stats import spearmanr
 
-from maxed_agent.agent.generator import FEEDBACK_PREAMBLE
-from maxed_agent.agent.injected_errors import build_baseline_text, build_injected_error_cases
-from maxed_agent.eval.judge import JudgeScore, score_draft
-from maxed_agent.fixtures.generate_fixtures import Ledger
-from maxed_agent.model_client import ModelClient
+from drafting_agent.agent.generator import FEEDBACK_PREAMBLE
+from drafting_agent.agent.injected_errors import build_baseline_text, build_injected_error_cases
+from drafting_agent.eval.judge import JudgeScore, score_draft
+from drafting_agent.fixtures.generate_fixtures import Ledger
+from drafting_agent.model_client import ModelClient
 
 CANDIDATES_PATH = Path("data/eval/labeling_candidates.json")
 HUMAN_LABELS_PATH = Path("data/eval/human_labels.json")

@@ -1,10 +1,10 @@
 from pathlib import Path
 
-from maxed_agent.agent.injected_errors import build_injected_error_cases
-from maxed_agent.fixtures.generate_fixtures import load_fixtures
-from maxed_agent.learning.decision_log import load_capability_gaps, load_decisions
-from maxed_agent.learning.learning_cycle import run_learning_cycle
-from maxed_agent.model_client import ModelClient
+from drafting_agent.agent.injected_errors import build_injected_error_cases
+from drafting_agent.fixtures.generate_fixtures import load_fixtures
+from drafting_agent.learning.decision_log import load_capability_gaps, load_decisions
+from drafting_agent.learning.learning_cycle import run_learning_cycle
+from drafting_agent.model_client import ModelClient
 
 
 def test_learning_cycle_logs_decisions_and_capability_gaps(tmp_path):
@@ -62,7 +62,7 @@ def test_learning_cycle_resets_log_between_runs(tmp_path):
 
 
 def test_learning_cycle_memory_does_not_leak_across_clients(tmp_path):
-    from maxed_agent.agent.injected_errors import build_baseline_text
+    from drafting_agent.agent.injected_errors import build_baseline_text
 
     _, ledger_one = load_fixtures("CLIENT-001")
     _, ledger_two = load_fixtures("CLIENT-002")

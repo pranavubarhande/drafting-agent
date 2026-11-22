@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from maxed_agent.trace import trace
+from drafting_agent.trace import trace
 
 STUB_DATA_PATH = Path(__file__).parent / "fixtures" / "data" / "stub_responses.json"
 

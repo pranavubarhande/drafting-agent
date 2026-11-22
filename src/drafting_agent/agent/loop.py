@@ -2,10 +2,10 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel
 
-from maxed_agent.agent.generator import generate_draft
-from maxed_agent.agent.verifier import CORRECTABLE, UNCORRECTABLE, Critique, critique_draft
-from maxed_agent.fixtures.generate_fixtures import Client, Ledger
-from maxed_agent.model_client import ModelClient
+from drafting_agent.agent.generator import generate_draft
+from drafting_agent.agent.verifier import CORRECTABLE, UNCORRECTABLE, Critique, critique_draft
+from drafting_agent.fixtures.generate_fixtures import Client, Ledger
+from drafting_agent.model_client import ModelClient
 
 Action = Literal["approved", "abstain", "escalate"]
 

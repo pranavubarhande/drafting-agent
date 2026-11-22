@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from maxed_agent.agent.loop import LoopResult
-from maxed_agent.agent.verifier import AMOUNT_RE, BALANCE_RE, Issue, count_txn_citations
-from maxed_agent.learning.decision_log import (
+from drafting_agent.agent.loop import LoopResult
+from drafting_agent.agent.verifier import AMOUNT_RE, BALANCE_RE, Issue, count_txn_citations
+from drafting_agent.learning.decision_log import (
     DEFAULT_LOG_PATH,
     CapabilityGapRecord,
     DecisionRecord,

@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from maxed_agent.learning.decision_log import DEFAULT_LOG_PATH, load_decisions
+from drafting_agent.learning.decision_log import DEFAULT_LOG_PATH, load_decisions
 
 DEFAULT_TRACE_PATH = Path("data/logs/trace.jsonl")
 DEFAULT_OUTPUT_PATH = Path("data/eval/preference_dataset.jsonl")

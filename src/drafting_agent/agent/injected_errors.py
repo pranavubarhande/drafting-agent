@@ -1,6 +1,6 @@
 from typing import Optional, TypedDict
 
-from maxed_agent.fixtures.generate_fixtures import Ledger
+from drafting_agent.fixtures.generate_fixtures import Ledger
 
 
 class InjectedCase(TypedDict):

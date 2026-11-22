@@ -1,12 +1,12 @@
 from pathlib import Path
 from typing import NamedTuple
 
-from maxed_agent.agent.loop import LoopResult, run_loop
-from maxed_agent.fixtures.generate_fixtures import DEFAULT_CLIENT_ID, load_fixtures
-from maxed_agent.learning.decision_log import DEFAULT_LOG_PATH
-from maxed_agent.learning.human_sim import simulate_human
-from maxed_agent.learning.retrieval_memory import build_few_shot_block, get_approved_examples
-from maxed_agent.model_client import ModelClient
+from drafting_agent.agent.loop import LoopResult, run_loop
+from drafting_agent.fixtures.generate_fixtures import DEFAULT_CLIENT_ID, load_fixtures
+from drafting_agent.learning.decision_log import DEFAULT_LOG_PATH
+from drafting_agent.learning.human_sim import simulate_human
+from drafting_agent.learning.retrieval_memory import build_few_shot_block, get_approved_examples
+from drafting_agent.model_client import ModelClient
 
 
 class LearningCycleReport(NamedTuple):

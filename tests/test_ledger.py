@@ -1,4 +1,4 @@
-from maxed_agent.fixtures.generate_fixtures import load_fixtures
+from drafting_agent.fixtures.generate_fixtures import load_fixtures
 
 
 def test_ledger_balance_matches_manual_sum():

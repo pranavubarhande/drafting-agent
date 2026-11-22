@@ -1,7 +1,7 @@
-from maxed_agent.agent.generator import FEEDBACK_PREAMBLE
-from maxed_agent.agent.injected_errors import build_injected_error_cases
-from maxed_agent.agent.verifier import critique_draft
-from maxed_agent.fixtures.generate_fixtures import load_fixtures
+from drafting_agent.agent.generator import FEEDBACK_PREAMBLE
+from drafting_agent.agent.injected_errors import build_injected_error_cases
+from drafting_agent.agent.verifier import critique_draft
+from drafting_agent.fixtures.generate_fixtures import load_fixtures
 
 
 def test_verifier_catches_every_injected_error():
@@ -18,7 +18,7 @@ def test_verifier_catches_every_injected_error():
 
 def test_verifier_accepts_clean_generated_style_draft():
     _, ledger = load_fixtures()
-    from maxed_agent.agent.injected_errors import build_baseline_text
+    from drafting_agent.agent.injected_errors import build_baseline_text
 
     critique = critique_draft(build_baseline_text(ledger), ledger)
     assert not critique.has_issues
@@ -46,7 +46,7 @@ def test_verifier_catches_wrong_amount_in_bulleted_list_format():
 
 def test_verifier_catches_leaked_revision_feedback():
     _, ledger = load_fixtures()
-    from maxed_agent.agent.injected_errors import build_baseline_text
+    from drafting_agent.agent.injected_errors import build_baseline_text
 
     draft = FEEDBACK_PREAMBLE + "some prior issue\n\n" + build_baseline_text(ledger)
     critique = critique_draft(draft, ledger)

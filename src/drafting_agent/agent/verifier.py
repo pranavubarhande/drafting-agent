@@ -3,7 +3,7 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel
 
-from maxed_agent.fixtures.generate_fixtures import Ledger
+from drafting_agent.fixtures.generate_fixtures import Ledger
 
 AMOUNT_RE = re.compile(r"\$\s?([\d,]+(?:\.\d{1,2})?)")
 TXN_RE = re.compile(r"TXN-\d+")

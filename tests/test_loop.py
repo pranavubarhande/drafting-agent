@@ -1,7 +1,7 @@
-from maxed_agent.agent.injected_errors import build_injected_error_cases
-from maxed_agent.agent.loop import run_loop
-from maxed_agent.fixtures.generate_fixtures import load_fixtures
-from maxed_agent.model_client import ModelClient
+from drafting_agent.agent.injected_errors import build_injected_error_cases
+from drafting_agent.agent.loop import run_loop
+from drafting_agent.fixtures.generate_fixtures import load_fixtures
+from drafting_agent.model_client import ModelClient
 
 
 def _cases_by_name(ledger):

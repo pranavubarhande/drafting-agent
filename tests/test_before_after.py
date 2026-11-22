@@ -1,9 +1,9 @@
-from maxed_agent.agent.loop import LoopResult
-from maxed_agent.agent.verifier import Critique
-from maxed_agent.eval.before_after import score_before_after
-from maxed_agent.fixtures.generate_fixtures import load_fixtures
-from maxed_agent.learning.learning_cycle import LearningCycleReport
-from maxed_agent.model_client import ModelClient
+from drafting_agent.agent.loop import LoopResult
+from drafting_agent.agent.verifier import Critique
+from drafting_agent.eval.before_after import score_before_after
+from drafting_agent.fixtures.generate_fixtures import load_fixtures
+from drafting_agent.learning.learning_cycle import LearningCycleReport
+from drafting_agent.model_client import ModelClient
 
 
 def _approved(draft_text: str) -> LoopResult:

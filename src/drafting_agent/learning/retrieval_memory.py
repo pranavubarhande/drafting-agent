@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from maxed_agent.agent.verifier import count_txn_citations
-from maxed_agent.learning.decision_log import DEFAULT_LOG_PATH, load_decisions
+from drafting_agent.agent.verifier import count_txn_citations
+from drafting_agent.learning.decision_log import DEFAULT_LOG_PATH, load_decisions
 
 APPROVED_DECISIONS = {"approve_as_is", "approve_with_edit"}
 MIN_TXN_CITATIONS = 1
