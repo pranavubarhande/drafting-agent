@@ -1,5 +1,5 @@
-import maxed_agent
+import drafting_agent
 
 
 def test_package_importable():
-    assert maxed_agent.__version__ == "0.1.0"
+    assert drafting_agent.__version__ == "0.1.0"

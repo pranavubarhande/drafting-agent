@@ -1,7 +1,7 @@
 import json
 
-from maxed_agent.learning.decision_log import DecisionRecord, log_decision, now
-from maxed_agent.learning.preference_dataset import build_preference_dataset, write_preference_dataset
+from drafting_agent.learning.decision_log import DecisionRecord, log_decision, now
+from drafting_agent.learning.preference_dataset import build_preference_dataset, write_preference_dataset
 
 
 def _write_trace(trace_path, prompt, output):

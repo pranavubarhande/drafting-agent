@@ -1,8 +1,8 @@
 from typing import Optional
 
-from maxed_agent.agent.verifier import LEAKED_FEEDBACK_MARKER
-from maxed_agent.fixtures.generate_fixtures import Client, Ledger
-from maxed_agent.model_client import ModelClient
+from drafting_agent.agent.verifier import LEAKED_FEEDBACK_MARKER
+from drafting_agent.fixtures.generate_fixtures import Client, Ledger
+from drafting_agent.model_client import ModelClient
 
 SYSTEM_PROMPT = """You draft a message to a client explaining their current account balance due, on behalf of an accounting firm.
 

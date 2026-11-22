@@ -1,5 +1,5 @@
-from maxed_agent.learning.decision_log import DecisionRecord, load_decisions, log_decision, now, veto_memory_example
-from maxed_agent.learning.retrieval_memory import get_approved_examples
+from drafting_agent.learning.decision_log import DecisionRecord, load_decisions, log_decision, now, veto_memory_example
+from drafting_agent.learning.retrieval_memory import get_approved_examples
 
 
 def test_sparse_approved_example_is_excluded_from_memory(tmp_path):

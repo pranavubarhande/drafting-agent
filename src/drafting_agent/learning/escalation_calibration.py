@@ -4,9 +4,9 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from maxed_agent.agent.verifier import UNCORRECTABLE, critique_draft
-from maxed_agent.fixtures.generate_fixtures import Ledger, load_fixtures
-from maxed_agent.learning.decision_log import DEFAULT_LOG_PATH, load_decisions
+from drafting_agent.agent.verifier import UNCORRECTABLE, critique_draft
+from drafting_agent.fixtures.generate_fixtures import Ledger, load_fixtures
+from drafting_agent.learning.decision_log import DEFAULT_LOG_PATH, load_decisions
 
 
 class EscalationCalibrationReport(BaseModel):

@@ -3,18 +3,18 @@ from dotenv import load_dotenv
 from rich.console import Console
 from rich.table import Table
 
-from maxed_agent.agent.injected_errors import build_injected_error_cases
-from maxed_agent.agent.loop import run_loop
-from maxed_agent.agent.verifier import critique_draft
-from maxed_agent.eval.before_after import score_before_after
-from maxed_agent.eval.calibration import build_labeling_candidates, compute_agreement, load_human_labels
-from maxed_agent.eval.length_bias import measure_anchored, measure_naive
-from maxed_agent.fixtures.generate_fixtures import DEFAULT_CLIENT_ID, load_fixtures
-from maxed_agent.learning.decision_log import DEFAULT_LOG_PATH, load_decisions, veto_memory_example
-from maxed_agent.learning.escalation_calibration import calibrate_abstain_escalate
-from maxed_agent.learning.learning_cycle import _batch_stats, run_learning_cycle
-from maxed_agent.learning.preference_dataset import build_preference_dataset, write_preference_dataset
-from maxed_agent.model_client import ModelClient
+from drafting_agent.agent.injected_errors import build_injected_error_cases
+from drafting_agent.agent.loop import run_loop
+from drafting_agent.agent.verifier import critique_draft
+from drafting_agent.eval.before_after import score_before_after
+from drafting_agent.eval.calibration import build_labeling_candidates, compute_agreement, load_human_labels
+from drafting_agent.eval.length_bias import measure_anchored, measure_naive
+from drafting_agent.fixtures.generate_fixtures import DEFAULT_CLIENT_ID, load_fixtures
+from drafting_agent.learning.decision_log import DEFAULT_LOG_PATH, load_decisions, veto_memory_example
+from drafting_agent.learning.escalation_calibration import calibrate_abstain_escalate
+from drafting_agent.learning.learning_cycle import _batch_stats, run_learning_cycle
+from drafting_agent.learning.preference_dataset import build_preference_dataset, write_preference_dataset
+from drafting_agent.model_client import ModelClient
 
 load_dotenv()
 
@@ -24,7 +24,7 @@ console = Console()
 
 @app.command()
 def status() -> None:
-    console.print("maxed-agent scaffold OK. Generate, verify, learn, and eval commands land here next.")
+    console.print("drafting-agent ready. Run --help to see available commands.")
 
 
 @app.command()

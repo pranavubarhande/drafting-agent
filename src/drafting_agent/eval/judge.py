@@ -3,9 +3,9 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from maxed_agent.agent.verifier import count_txn_citations, critique_draft
-from maxed_agent.fixtures.generate_fixtures import Ledger
-from maxed_agent.model_client import ModelClient
+from drafting_agent.agent.verifier import count_txn_citations, critique_draft
+from drafting_agent.fixtures.generate_fixtures import Ledger
+from drafting_agent.model_client import ModelClient
 
 JUDGE_SYSTEM_PROMPT = """You are scoring a client-facing accounting message on two dimensions, each from 1 to 5.
 

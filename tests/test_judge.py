@@ -1,7 +1,7 @@
-from maxed_agent.agent.injected_errors import build_baseline_text, build_injected_error_cases
-from maxed_agent.eval.judge import score_draft
-from maxed_agent.fixtures.generate_fixtures import load_fixtures
-from maxed_agent.model_client import ModelClient
+from drafting_agent.agent.injected_errors import build_baseline_text, build_injected_error_cases
+from drafting_agent.eval.judge import score_draft
+from drafting_agent.fixtures.generate_fixtures import load_fixtures
+from drafting_agent.model_client import ModelClient
 
 
 def _stub_judge_client(response: str) -> ModelClient:

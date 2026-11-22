@@ -1,8 +1,8 @@
 from pydantic import BaseModel
 
-from maxed_agent.eval.judge import JUDGE_SYSTEM_PROMPT, JudgeScore, score_draft
-from maxed_agent.fixtures.generate_fixtures import Ledger
-from maxed_agent.model_client import ModelClient
+from drafting_agent.eval.judge import JUDGE_SYSTEM_PROMPT, JudgeScore, score_draft
+from drafting_agent.fixtures.generate_fixtures import Ledger
+from drafting_agent.model_client import ModelClient
 
 NAIVE_JUDGE_SYSTEM_PROMPT = """You are scoring a client-facing accounting message.
 

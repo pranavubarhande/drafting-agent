@@ -1,6 +1,6 @@
-from maxed_agent.fixtures.generate_fixtures import load_fixtures
-from maxed_agent.learning.decision_log import DecisionRecord, log_decision, now
-from maxed_agent.learning.escalation_calibration import calibrate_abstain_escalate
+from drafting_agent.fixtures.generate_fixtures import load_fixtures
+from drafting_agent.learning.decision_log import DecisionRecord, log_decision, now
+from drafting_agent.learning.escalation_calibration import calibrate_abstain_escalate
 
 
 def test_escalate_correction_success_rate_and_abstain_breakdown(tmp_path):

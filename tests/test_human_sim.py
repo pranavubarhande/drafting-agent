@@ -1,7 +1,7 @@
-from maxed_agent.agent.verifier import Critique, Issue
-from maxed_agent.agent.loop import LoopResult
-from maxed_agent.learning.decision_log import load_decisions
-from maxed_agent.learning.human_sim import simulate_human
+from drafting_agent.agent.verifier import Critique, Issue
+from drafting_agent.agent.loop import LoopResult
+from drafting_agent.learning.decision_log import load_decisions
+from drafting_agent.learning.human_sim import simulate_human
 
 
 def test_sparse_approved_draft_is_declined_not_rubber_stamped(tmp_path):
